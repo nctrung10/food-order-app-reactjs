@@ -6,8 +6,20 @@ import CartItem from './CartItem';
 
 const Cart = () => {
   const appCtx = useContext(AppContext);
+  const cartItems = appCtx.addedItem.map(item => (
+    <CartItem
+      key={item.id}
+      id={item.id}
+      name={item.name}
+      price={item.price}
+      amount={item.amount}
+    />
+  ));
+
+  // Total price of items in cart
   const totalPrice = `$${appCtx.totalPrice.toFixed(2)}`;
 
+  // Ordering items in cart
   const orderHandler = () => {
     alert('Order successfully!');
     appCtx.onHide();
@@ -16,29 +28,21 @@ const Cart = () => {
 
   return (
     <ul className={classes['cart-items']}>
-      {appCtx.addedItem.map((item) => (
-        <CartItem 
-          key={item.id}
-          id={item.id}
-          name={item.name}
-          price={item.price}
-          amount={item.amount}
-        />
-      ))}
-      {appCtx.addedItem.length === 0 && <p>No items in your cart.</p>}
+      {appCtx.addedItem.length !== 0 ? cartItems : (<p>No items in your cart.</p>)}
 
       <div className={classes.total}>
         <span>Total Amount</span>
-        <span>{totalPrice}</span>  {/* Total price of items in cart */}
+        <span>{totalPrice}</span>
       </div>
+
       <div className={classes.actions}>
-        <button 
+        <button
           className={classes['button--alt']}
           onClick={appCtx.onHide}
         >
           Close
         </button>
-        <button 
+        <button
           className={classes.button}
           onClick={orderHandler}
           disabled={appCtx.addedItem.length === 0}
