@@ -1,36 +1,42 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-import AppContext from '../../context/app-context';
+import CartContext from '../../context/cart-context';
 import CartIcon from '../Cart/CartIcon';
 import classes from './HeaderCartButton.module.css';
 
-const HeaderCartButton = () => {
-  const appCtx = useContext(AppContext);
-  const [isQuantityChange, setIsQuantityChange] = useState(false);
+const HeaderCartButton = props => {
+  const cartCtx = useContext(CartContext);
+  const [quantityIsChange, setQuantityIsChange] = useState(false);
+
+  const { addedItems } = cartCtx;
+
+  const totalQuantity = addedItems.reduce((acc, item) => {
+    return acc + item.amount;
+  }, 0);
 
   //Handle animation for the cart button
   useEffect(() => {
-    if (appCtx.totalQuantity) {
-      setIsQuantityChange(true);
+    if (addedItems) {
+      setQuantityIsChange(true);
     }
 
-    setTimeout(() => {
-      setIsQuantityChange(false);
-    }, 500);
-  }, [appCtx.totalQuantity]);
+    const timer = setTimeout(() => {
+      setQuantityIsChange(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [addedItems]);
 
   return (
-    <button 
-      className={`${classes.button} ${
-        isQuantityChange ? classes.bump : ''
-      }`} 
-      onClick={appCtx.onOpen}
+    <button
+      className={`${classes.button} ${quantityIsChange ? classes.bump : ''}`}
+      onClick={props.onOpen}
     >
-      <span className={classes.icon}><CartIcon /></span>
-      <span>Your cart</span>
-      <span className={classes.badge}>
-        {appCtx.totalQuantity}
+      <span className={classes.icon}>
+        <CartIcon />
       </span>
+      <span>Your cart</span>
+      <span className={classes.badge}>{totalQuantity}</span>
     </button>
   );
 };
