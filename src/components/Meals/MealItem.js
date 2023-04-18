@@ -6,7 +6,7 @@ const MealItem = (props) => {
 
   return (
     <li className={classes.meal}>
-      <div>
+      <div id={props.id}>
         <h3>{props.name}</h3>
         <span className={classes.description}>{props.description}</span>
         <span className={classes.price}>{price}</span>

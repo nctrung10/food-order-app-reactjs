@@ -1,51 +1,51 @@
+import React, { useState, useEffect } from 'react';
+
 import classes from './AvailableMeals.module.css';
 import Card from '../../components/UI/Card/Card';
 import MealItem from './MealItem';
+import useHttp from '../../hooks/use-http';
 
-// Dummy data
-const DUMMY_MEALS = [
-  {
-    id: 'm1',
-    name: 'Sushi',
-    description: 'Finest fish and veggies',
-    price: 22.99,
-  },
-  {
-    id: 'm2',
-    name: 'Schnitzel',
-    description: 'A german specialty!',
-    price: 16.5,
-  },
-  {
-    id: 'm3',
-    name: 'Barbecue Burger',
-    description: 'American, raw, meaty',
-    price: 12.99,
-  },
-  {
-    id: 'm4',
-    name: 'Green Bowl',
-    description: 'Healthy...and green...',
-    price: 18.99,
-  },
-];
 
 const AvailableMeals = () => {
-  const mealsList = DUMMY_MEALS.map(meal => (
-    <MealItem
-      key={meal.id}
-      id={meal.id}
-      name={meal.name}
-      description={meal.description}
-      price={meal.price}
-    />
-  ));
+  const [meals, setMeals] = useState([]);
+  const { isLoading, error, sendRequest: fetchMeals } = useHttp();
+
+  const transformMeals = meals => {
+    const loadedMeals = Object.keys(meals).map(key => (
+      <MealItem
+        key={key}
+        id={key}
+        name={meals[key].name}
+        description={meals[key].description}
+        price={meals[key].price}
+      />
+    ));
+
+    setMeals(loadedMeals);
+  };
+
+  useEffect(() => {
+    fetchMeals(
+      { url: 'https://react-food-order-app-1099-default-rtdb.asia-southeast1.firebasedatabase.app/meals.json' },
+      transformMeals
+    );
+  }, [fetchMeals]);
+
+  let content = <h2>No meals found.</h2>;
+
+  if (meals) {
+    content = meals;
+  }
+  if (isLoading) {
+    content = <p style={{ textAlign: 'center' }}>Loading meals....</p>;
+  }
+  if (error) {
+    content = <p style={{ color: 'red' }}>{error}</p>;
+  }
 
   return (
     <Card className={classes.meals}>
-      <ul>
-        {mealsList}
-      </ul>
+      <ul>{content}</ul>
     </Card>
   );
 };

@@ -4,20 +4,20 @@ const CartContext = React.createContext({
   addedItems: [],
   totalPrice: 0,
   storeItem: (item) => {},
-  onPlusItem: (item) => {},
-  onRemoveItem: (item) => {},
-  onDone: () => {},
+  plusItem: (item) => {},
+  removeItem: (item) => {},
+  clearCart: () => {},
 });
 
 export const CartContextProvider = props => {
-  const [addedItem, setAddedItem] = useState([]);
+  const [addedItems, setAddedItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
 
   // Add items to cart
   const storeHandler = (item) => {
     setTotalPrice(prevPrice => prevPrice + item.totalPrice)
 
-    setAddedItem((prevValue) => {
+    setAddedItems((prevValue) => {
       const existingItemIndex = prevValue.findIndex(({ id }) => id === item.id);
       const currentItem = [...prevValue];
 
@@ -45,9 +45,9 @@ export const CartContextProvider = props => {
     //if the quantity of the item is 0, then remove entirely that item from the cart
     //otherwise decrease the item by 1
     if (newAmount === 0) {
-      setAddedItem(prevItem => prevItem.filter(({ id }) => id !== item.id));
+      setAddedItems(prevItem => prevItem.filter(({ id }) => id !== item.id));
     } else {
-      setAddedItem(prevItem => {
+      setAddedItems(prevItem => {
         const existingItemIndex = prevItem.findIndex(({ id }) => id === item.id);
         const currentItem = [...prevItem];
         currentItem[existingItemIndex] = { ...currentItem[existingItemIndex], amount: newAmount };
@@ -59,10 +59,7 @@ export const CartContextProvider = props => {
     //If the cart is empty (Refactored)
     setTotalPrice(prevTotal => {
       const newTotalPrice = prevTotal - item.price;
-      if (newTotalPrice <= 0) {
-        setTotalPrice(0);
-      }
-      return newTotalPrice;
+      return newTotalPrice <= 0 ? 0 : newTotalPrice;
     });
   };
 
@@ -70,7 +67,7 @@ export const CartContextProvider = props => {
   const plusItemHandler = (item) => {
     const newAmount = item.amount + 1;
     
-    setAddedItem(prevItem => {
+    setAddedItems(prevItem => {
       const existingItemIndex = prevItem.findIndex(({ id }) => id === item.id);
       const currentItem = [...prevItem];
       currentItem[existingItemIndex] = { ...currentItem[existingItemIndex], amount: newAmount };
@@ -81,21 +78,21 @@ export const CartContextProvider = props => {
     setTotalPrice(prevTotal => prevTotal + item.price);
   };
 
-  // Order items in cart
-  const orderHandler = () => {
-    setAddedItem([]);
+  // Clear items in cart
+  const clearCartHandler = () => {
+    setAddedItems([]);
     setTotalPrice(0);
   };
 
   return (
     <CartContext.Provider
       value={{
-        addedItems: addedItem,
+        addedItems: addedItems,
         totalPrice: totalPrice,
         storeItem: storeHandler,
-        onRemoveItem: removeItemHandler,
-        onPlusItem: plusItemHandler,
-        onDone: orderHandler,
+        removeItem: removeItemHandler,
+        plusItem: plusItemHandler,
+        clearCart: clearCartHandler,
       }}
     >
       {props.children}
